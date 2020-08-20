@@ -41,5 +41,16 @@ public class BlogController {
         return "redirect:/blog";
     }
 
-    
+    @GetMapping("/blog/{id}")
+    public String blogDetailedPost(@PathVariable(value = "id") long id, Model model) {
+        if(!postRepository.existsById(id)){
+            return "redirect:/blog";
+        }
+
+        Optional<Post> post = postRepository.findById(id);
+        ArrayList<Post> result = new ArrayList<>();
+        post.ifPresent(result::add);
+        model.addAttribute("post", result);
+        return "blog-detailed";
+    }
 }
