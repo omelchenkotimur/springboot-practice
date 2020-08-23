@@ -32,18 +32,18 @@ public class BlogController {
     }
 
     @PostMapping("/blog/add")
-    public String blogAddPost(@RequestParam String tittle,
+    public String blogAddPost(@RequestParam String title,
                               @RequestParam String preview,
                               @RequestParam String text,
                               Model model) {
-        Post post = new Post(tittle, preview, text);
+        Post post = new Post(title, preview, text);
         postRepository.save(post);
         return "redirect:/blog";
     }
 
     @GetMapping("/blog/{id}")
     public String blogDetailedPost(@PathVariable(value = "id") long id, Model model) {
-        if(!postRepository.existsById(id)){
+        if (!postRepository.existsById(id)) {
             return "redirect:/blog";
         }
 
@@ -52,5 +52,32 @@ public class BlogController {
         post.ifPresent(result::add);
         model.addAttribute("post", result);
         return "blog-detailed";
+    }
+
+    @GetMapping("/blog/{id}/edit")
+    public String blogEditPost(@PathVariable(value = "id") long id, Model model) {
+        if (!postRepository.existsById(id)) {
+            return "redirect:/blog";
+        }
+
+        Optional<Post> post = postRepository.findById(id);
+        ArrayList<Post> result = new ArrayList<>();
+        post.ifPresent(result::add);
+        model.addAttribute("post", result);
+        return "blog-edit";
+    }
+
+    @PostMapping("/blog/{id}/edit")
+    public String blogPostUpdate(@PathVariable(value = "id") long id,
+                                 @RequestParam String title,
+                                 @RequestParam String preview,
+                                 @RequestParam String text,
+                                 Model model) {
+        Post post = postRepository.findById(id).orElseThrow(IllegalStateException::new);
+        post.setTitle(title);
+        post.setPreview(preview);
+        post.setText(text);
+        postRepository.save(post);
+        return "redirect:/blog";
     }
 }
